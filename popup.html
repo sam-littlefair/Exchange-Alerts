@@ -1,0 +1,224 @@
+<!doctype html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Betfair Alerts</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+            font-size: 100%;
+            width: 500px;
+            height: 450px;
+        }
+
+        h1 {
+            font-size: 97%;
+        }
+
+        #status {
+            white-space: pre;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 400px;
+        }
+
+        #form {
+            display: none;
+        }
+
+        #button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        #removeAlert {
+            background-color: #ff6a6a;
+            border: none;
+            padding: 10px 25px;
+            color: white;
+        }
+
+        #currentNotif {
+            width: 450px;
+        }
+
+        #status {
+            padding-bottom: 4px;
+        }
+
+        #smarkValues {
+            margin-bottom: 12px;
+            width: 400px;
+        }
+
+        #overUnderOdds {
+            padding-bottom: 8px;
+        }
+
+        #statusOverUnder {
+            padding-bottom: 5px;
+        }
+
+        #settings {
+            position: absolute;
+            right: 0;
+            padding-right: 15px;
+        }
+
+        #settings_menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            margin-top: 30px;
+            margin-right: 20px;
+            background-color: white;
+            border-width: 1px;
+            border-style: solid;
+            width: 350px;
+            height: 120px;
+            z-index: 100;
+            padding-top: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 30px;
+            height: 17px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 13px;
+            width: 13px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(13px);
+            -ms-transform: translateX(13px);
+            transform: translateX(13px);
+        }
+
+        .slider.round {
+            border-radius: 17px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+
+    <script type="text/javascript" src="popup.js"></script>
+</head>
+<body>
+<div id="settings"><input id="settings_button" type="image" src="settings.png"/></input></div>
+<div id="settings_menu">
+    <div id="settingscontent" style="padding-left:20px;"> Alert sound?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label
+            class="switch" style="margin-left:149px"><input id="sound_check" type="checkbox" checked="">
+        <span class="slider round"></span>
+    </label></div>
+    <div id="settingscontent2" style="padding-left:20px;"> Remove alerts when page closed?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label
+            class="switch"><input id="alert_remove_check" type="checkbox" checked="">
+        <span class="slider round"></span>
+    </label></div>
+    <!--<div id="settingscontent3" style="padding-left:20px;"> Odds check interval: &nbsp;  <input id="interval_Set" type="text" name="intervalSet" style="width:50px">ms &nbsp; <button id="changeInterval" style="height:25px; width: 60px; ">Change</button></div>
+    --><br>
+    <center>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+            <input type="image" src="btn_donate_LG.gif" border="0" name="submit"
+                   alt="PayPal – The safer, easier way to pay online!">
+
+        </form>
+    </center>
+</div>
+<div id="all_outside">
+    <center><h1>Betfair Alerts</h1>
+        <center>
+            <div id="status"></div>
+
+            <div id="all">
+                <div id="form">
+                    <select style="width:250px" id="smarkValues">
+                        <option>Choose your alert..</option>
+                    </select>
+                </div>
+                <div id="overUnderOdds">
+                    <div id="statusOverUnder"></div>
+                    <input type="radio" name="able" id="exactly"> Exactly
+                    <input type="radio" name="able" id="under"> Under
+                    <input type="radio" name="able" id="over"> Over
+                </div>
+                <form name="oddsInput" action="">
+                    ..these odds: <input type="text" name="oddsNumber" style="width:50px"><br>
+                </form>
+                <br>
+                <div id="backLay"></div>
+                <form action="">
+                    <div>
+                        <input type="radio" name="able" id="above"> Back
+                        <input type="radio" name="able" id="below"> Lay
+                        <div>
+                            <br>
+                            <button id="button">Set up new alert</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </center>
+    </center>
+</div>
+
+<br></div>
+<div id="currentNotif">
+    <div id="formNotifs">
+        <select style="width:400px" id="existingNotifications">
+            <option id="default_option">Your existing notifications...</option>
+        </select>
+    </div>
+    <br>
+    <button id="removeAlert">Remove notification</button>
+</div>
+<br>
+
+</body>
+</html>
+
