@@ -1,5 +1,27 @@
 let urlPage;
 
+function getJSON() {
+    let notification = localStorage.getItem("all_notifications_JSON");
+    notification = JSON.parse(notification);
+    return (notification);
+}
+
+function setJSON(notifications) {
+    notifications = JSON.stringify(notifications);
+    localStorage.setItem("all_notifications_JSON", notifications);
+}
+
+function getINDEX() {
+    let indexs = localStorage.getItem("indexed_alerts");
+    indexs = JSON.parse(indexs);
+    return (indexs);
+}
+
+function setINDEX(index) {
+    index = JSON.stringify(index);
+    localStorage.setItem("indexed_alerts", index);
+}
+
 function setUpNotify() {
     chrome.tabs.query({
         active: true,
@@ -7,7 +29,6 @@ function setUpNotify() {
     }, function (tabs) {
         let tabID = tabs[0].id;
         let windowID = tabs[0].windowId;
-
 
         let random_string = "";
         let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -34,7 +55,7 @@ function setUpNotify() {
         let nameChosen = e.options[e.selectedIndex].text;
         let indexChosen = null;
         if (nameChosen === "Choose your alert..") {
-            alert("You need to choose what to be alerted for.")
+            alert("You need to choose what to be alerted for.");
             nameChosen = "";
         } else {
             for (let i = 0; i < e.options.length; i++) {
@@ -49,42 +70,36 @@ function setUpNotify() {
 
         }
 
-        let back_string;
+        let back_string, is_back;
         if (document.getElementById("above").checked) {
-            let is_back = true;
+            is_back = true;
             back_string = "back";
         } else if (document.getElementById("below").checked) {
-            let is_lay = true;
             back_string = "lay";
         } else {
-            alert("Please choose back or lay.")
+            alert("Please choose back or lay.");
         }
 
-        if (is_back) {
-            notifications["Notifications"][random_string]["back"] = true;
-        } else {
-            notifications["Notifications"][random_string]["back"] = false;
-        }
+        notifications["Notifications"][random_string]["back"] = is_back;
 
         let oddsInput = document.forms["oddsInput"]["oddsNumber"].value;
         if (oddsInput < 1) {
-            alert("Odds must be 1 or greater.")
+            alert("Odds must be 1 or greater.");
         }
         else if (isNaN(oddsInput)) {
-            alert("Odds must be a number.")
+            alert("Odds must be a number.");
         } else {
-            let odds = Math.round(oddsInput * 100) / 100
-
-            notifications["Notifications"][random_string]["odds"] = odds;
+            notifications["Notifications"][random_string]["odds"] = Math.round(oddsInput * 100) / 100;
         }
+        let isOverUnder;
         if (document.getElementById("exactly").checked) {
-            let isOverUnder = "Exactly";
+            isOverUnder = "Exactly";
         } else if (document.getElementById("under").checked) {
-            let isOverUnder = "Under";
+            isOverUnder = "Under";
         } else if (document.getElementById("over").checked) {
-            let isOverUnder = "Over";
+            isOverUnder = "Over";
         } else {
-            alert("Please choose exactly, under or over.")
+            alert("Please choose exactly, under or over.");
         }
         if (urlPage.includes("betfair")) {
             notifications["Notifications"][random_string]["exchange"] = "Betfair";
@@ -97,7 +112,6 @@ function setUpNotify() {
             notifications["Notifications"][random_string]["exactly"] = isOverUnder;
             notifications["Notifications"][random_string]["url"] = urlPage;
 
-            alreadyExists = false;
             notifications = JSON.stringify(notifications);
             localStorage.setItem("all_notifications_JSON", notifications);
             let indexs = getINDEX();
@@ -111,13 +125,13 @@ function setUpNotify() {
                 chrome.tabs.sendMessage(
                     tabs[0].id,
                     {
-                        from: 'popup',
-                        subject: 'setUpListener',
+                        from: "popup",
+                        subject: "setUpListener",
                         index: indexChosen,
                         backLay: back_string,
                         id: random_string
                     },
-                    function (response) {
+                    function () {
                         localStorage.setItem("notifJustAdded", "true");
                         location.reload();
                     });
@@ -153,8 +167,8 @@ function removeListItem() {
         localStorage.setItem("all_notifications_JSON", notifications);
 
         chrome.tabs.sendMessage(tabid, {
-            from: 'popup',
-            subject: 'removeTag',
+            from: "popup",
+            subject: "removeTag",
             remove_id: string_to_remove
         }, function (response) {
         });
@@ -164,30 +178,23 @@ function removeListItem() {
 }
 
 function renderStatus(statusText) {
-    document.getElementById('status').textContent = statusText;
+    document.getElementById("status").textContent = statusText;
 
 }
 
 function renderOverUnder(statusText) {
-    document.getElementById('statusOverUnder').textContent = statusText;
+    document.getElementById("statusOverUnder").textContent = statusText;
 
 }
 
 function renderBackLay(statusText) {
-    document.getElementById('backLay').textContent = statusText;
+    document.getElementById("backLay").textContent = statusText;
 }
 
 function removeNotifButton() {
-    document.getElementById('button').setAttribute('style', 'display:block');
-    document.getElementById('removeAlert').setAttribute('style', 'display:block');
+    document.getElementById("button").setAttribute("style", "display:block");
+    document.getElementById("removeAlert").setAttribute("style", "display:block");
 }
-
-function addNotifButton() {
-    document.getElementById('button').setAttribute('style', 'display:block');
-    document.getElementById('removeAlert').setAttribute('style', 'display:block');
-}
-
-let stringTextItems = [];
 
 function printCurrentNotif() {
     let notifications = JSON.parse(localStorage.getItem("all_notifications_JSON"));
@@ -221,7 +228,6 @@ function printCurrentNotif() {
             + isBack + " odds " + notifications.Notifications[indexed[j]].exactly + " "
             + notifications.Notifications[indexed[j]].odds;
 
-        //stringTextItems.push(stringText);
         let select2 = document.getElementById("existingNotifications");
 
         let listItem = document.createElement("option");
@@ -233,8 +239,8 @@ function printCurrentNotif() {
 }
 
 let isBetfair = false;
-document.addEventListener('DOMContentLoaded', function () {
-    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+document.addEventListener("DOMContentLoaded", function () {
+    chrome.tabs.query({"active": true, "lastFocusedWindow": true}, function (tabs) {
 
         if (tabs[0].url !== undefined) {
             urlPage = tabs[0].url;
@@ -245,21 +251,17 @@ document.addEventListener('DOMContentLoaded', function () {
             isBetfair = true;
         }
 
-
         document.getElementById("removeAlert").addEventListener("click", removeListItem);
         document.getElementById("settings_button").addEventListener("click", openSettings);
         document.getElementById("sound_check").addEventListener("click", toggleSound);
         document.getElementById("alert_remove_check").addEventListener("click", toggleAlertRemove);
-        //TEMPORARY
-
 
         if (localStorage.getItem("indexed_alerts") == null) {
-            let indexed_alerts = new Array();
+            let indexed_alerts = [];
             setINDEX(indexed_alerts);
         }
 
         let JSON = getJSON();
-        let indexed_alerts = getINDEX();
 
         if (localStorage.getItem("all_notifications_JSON") == null) {
 
@@ -284,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (urlPage.includes("market") && urlPage.includes("betfair.com/exchange")) {
-
             setTimeout(function () {
                 if (nameList == null) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -301,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, function (tabs) {
                 chrome.tabs.sendMessage(
                     tabs[0].id,
-                    {from: 'popup', subject: 'DOMInfo'},
+                    {from: "popup", subject: "DOMInfo"},
                     function (response) {
                         setDOMInfo(response);
                     });
@@ -352,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let JSON = getJSON();
     if (localStorage.getItem("isSettingsOpen") === "1") {
-        let menuBox = document.getElementById('settings_menu');
+        let menuBox = document.getElementById("settings_menu");
         menuBox.style.display = "block";
         localStorage.removeItem("isSettingsOpen");
     }
@@ -369,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (JSON.Settings.Persistent_Alerts === false) {
         document.getElementById("alert_remove_check").checked = false;
     }
-    document.addEventListener('click', function (event) {
+    document.addEventListener("click", function (event) {
         let settingsButton = document.getElementById("settings_button");
         let specifiedElement = document.getElementById("settings_menu");
         let isClickInside = specifiedElement.contains(event.target) || settingsButton.contains(event.target);
@@ -411,7 +412,6 @@ function checkJSON() {
 
                 }
             }
-
 
             if (hasChanged) {
                 hasChanged = false;
@@ -460,11 +460,7 @@ function checkJSON() {
 
 function toggleSound() {
     let JSON = getJSON();
-    if (document.getElementById("sound_check").checked) {
-        JSON.Settings.Sound = true;
-    } else {
-        JSON.Settings.Sound = false;
-    }
+    JSON.Settings.Sound = document.getElementById("sound_check").checked;
     setJSON(JSON);
 }
 
@@ -480,16 +476,12 @@ function toggleRemoveButton() {
 
 function toggleAlertRemove() {
     let JSON = getJSON();
-    if (document.getElementById("alert_remove_check").checked) {
-        JSON.Settings.Persistent_Alerts = true;
-    } else {
-        JSON.Settings.Persistent_Alerts = false;
-    }
+    JSON.Settings.Persistent_Alerts = document.getElementById("alert_remove_check").checked;
     setJSON(JSON);
 }
 
 function openSettings() {
-    let menuBox = document.getElementById('settings_menu');
+    let menuBox = document.getElementById("settings_menu");
     if (menuBox.style.display === "block") {
         menuBox.style.display = "none";
     }
@@ -508,15 +500,14 @@ function setDOMInfo(response) {
     if (response == null) {
         document.body.style.height = "200px";
         renderStatus("Open an exchange event page to begin!");
-        document.getElementById('all').setAttribute('style', 'display:none');
-
+        document.getElementById("all").setAttribute("style", "display:none");
     } else {
         if (isBetfair = false) {
             isBetfair = true;
         }
         renderStatus("What would you like to be notified for?");
-        document.getElementById('form').setAttribute('style', 'display:block');
-        document.getElementById('all').setAttribute('style', 'display:block');
+        document.getElementById("form").setAttribute("style", "display:block");
+        document.getElementById("all").setAttribute("style", "display:block");
     }
     nameArrayCheck = nameList;
     let select = document.getElementById("smarkValues");
@@ -538,19 +529,19 @@ function setDOMInfo(response) {
 
     if (Object.keys(JSON.Notifications).length === 0) {
         document.body.style.height = "350px";
-        document.getElementById('currentNotif').setAttribute('style', 'display:none');
+        document.getElementById("currentNotif").setAttribute("style", "display:none");
     } else {
-        document.getElementById('currentNotif').setAttribute('style', 'display:block');
+        document.getElementById("currentNotif").setAttribute("style", "display:block");
     }
 
 }
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if ((msg.from === 'bg') && (msg.subject === 'grabNotifData')) {
+    if ((msg.from === "bg") && (msg.subject === "grabNotifData")) {
         sendResponse(nameChosen);
     }
 
-    if ((msg.from === 'bg') && (msg.subject === 'refreshPage')) {
+    if ((msg.from === "bg") && (msg.subject === "refreshPage")) {
         location.reload();
         sendResponse(true);
     }
@@ -561,26 +552,5 @@ window.onload = function () {
     if (removeNotification === "true") {
         removeNotify();
     }
-}
+};
 
-function getJSON() {
-    let notification = localStorage.getItem("all_notifications_JSON");
-    notification = JSON.parse(notification);
-    return (notification);
-}
-
-function setJSON(notifications) {
-    notifications = JSON.stringify(notifications);
-    localStorage.setItem("all_notifications_JSON", notifications);
-}
-
-function getINDEX() {
-    let indexs = localStorage.getItem("indexed_alerts");
-    indexs = JSON.parse(indexs);
-    return (indexs);
-}
-
-function setINDEX(index) {
-    index = JSON.stringify(index);
-    localStorage.setItem("indexed_alerts", index);
-}

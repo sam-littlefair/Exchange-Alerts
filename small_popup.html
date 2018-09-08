@@ -1,52 +1,57 @@
-
 <!doctype html>
 <meta charset="utf-8">
 <html>
 <head>
-<title>Create Alert</title>
-<style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-		max-width:250px;
-		max-height:250px;
-		margin:0;
-      }
-	  	#button {
-    background-color: #4CAF50; 
-    border: none;
-    color: white;
-    padding: 10px 25px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-	margin-top:22px;
-}
-</style>
+    <title>Create Alert</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+            font-size: 100%;
+            max-width: 250px;
+            max-height: 250px;
+            margin: 0;
+        }
 
-<script type="text/javascript" src="small_popup.js"></script>
+        #button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 22px;
+        }
+    </style>
+
+    <script type="text/javascript" src="small_popup.js"></script>
 </head>
 
 
 <body>
 <center><b>Create New Alert</b></center>
 
-<center><div style="display:inline-block;">
-	<img id="selection_image" style="padding-left:10px; width:26px; height:21px;"> </img>
-</div>
-
-<div style="display:inline-block;">
-	<p id="selection_name"></p>
-</div></center>
 <center>
-  <input type="radio" name="able" id="exactly"> Exactly
-  <input type="radio" name="able" id="under"> Under
-  <input type="radio" name="able" id="over"> Over
-<div style="padding-top:10px;">
-  <form name="oddsInput" action="">
-Odds: <input type="text" name="oddsNumber" style="width:50px;"><br></div></form>
-<div id="error"> </div>
-<button id="button">Create</button></center>
+    <div style="display:inline-block;">
+        <img id="selection_image" style="padding-left:10px; width:26px; height:21px;">
+    </div>
+
+    <div style="display:inline-block;">
+        <p id="selection_name"></p>
+    </div>
+</center>
+<center>
+    <input type="radio" name="able" id="exactly"> Exactly
+    <input type="radio" name="able" id="under"> Under
+    <input type="radio" name="able" id="over"> Over
+    <div style="padding-top:10px;">
+        <form name="oddsInput" action="">
+            Odds: <input type="text" name="oddsNumber" style="width:50px;"><br>
+    </form>
+    </div>
+    <div id="error"></div>
+    <button id="button">Create</button>
+</center>
 </body>
 </html>

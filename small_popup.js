@@ -1,10 +1,10 @@
 function setUpNotify() {
-    let error = false;
     let random_string = "";
     let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for (let i = 0; i < 21; i++)
+    for (let i = 0; i < 21; i++) {
         random_string += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
     String(random_string);
 
     let notificationData = localStorage.getItem("all_notifications_JSON");
@@ -24,39 +24,37 @@ function setUpNotify() {
         "windowid": windowid
     };
 
+    let isOverUnder, odds;
+    let error = false;
     if (document.getElementById("exactly").checked) {
-        let isOverUnder = "Exactly";
+        isOverUnder = "Exactly";
     } else if (document.getElementById("under").checked) {
-        let isOverUnder = "Under";
+        isOverUnder = "Under";
     } else if (document.getElementById("over").checked) {
-        let isOverUnder = "Over";
+        isOverUnder = "Over";
     } else {
         document.getElementById("error").textContent = "Choose exactly/under/over.";
-        let error = true;
+        error = true;
     }
 
     let oddsInput = document.forms["oddsInput"]["oddsNumber"].value;
 
     if (oddsInput === "") {
         document.getElementById("error").textContent = "Enter odds.";
-        let error = true;
+        error = true;
     }
     else if (oddsInput < 1) {
         document.getElementById("error").textContent = "Odds above 1.";
-        let error = true;
+        error = true;
     }
     else if (isNaN(oddsInput)) {
         document.getElementById("error").textContent = "Not a number.";
-        let error = true;
+        error = true;
     } else {
-        let odds = Math.round(oddsInput * 100) / 100;
+        odds = Math.round(oddsInput * 100) / 100;
     }
-    let isBack;
-    if(notificationData["Temp_data"]["back"] === "back") {
-        isBack = true;
-    } else {
-        isBack = false;
-    }
+
+    let isBack = notificationData["Temp_data"]["back"] === "back";
 
     if (!error) {
         let options = [];
@@ -75,8 +73,6 @@ function setUpNotify() {
             notificationData["Notifications"][random_string].url = notificationData["Temp_data"]["url"];
             notificationData["Notifications"][random_string].exactly = isOverUnder;
             notificationData["Notifications"][random_string].exchange = notificationData["Temp_data"]["exchange"];
-
-            alreadyExists = false;
 
             chrome.tabs.sendMessage(
                 notificationData["Temp_data"]["tabid"], {
@@ -137,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener("keypress", function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
-        document.getElementById("selection_name").click()
+        document.getElementById("selection_name").click();
         document.getElementById("button").click();
     }
-})
+});
