@@ -1,4 +1,5 @@
 let urlPage;
+let isBetfair = false;
 
 function getJSON() {
     let notification = localStorage.getItem("all_notifications_JSON");
@@ -390,7 +391,6 @@ function checkJSON() {
     }
 }
 
-let isBetfair = false;
 document.addEventListener("DOMContentLoaded", function () {
     chrome.tabs.query({"active": true, "lastFocusedWindow": true}, function (tabs) {
 
