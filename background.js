@@ -1,6 +1,35 @@
 let current_notifications = [];
 let pageX, pageY;
 
+function removeListItem(id) {
+
+    let indexs = localStorage.getItem("indexed_alerts");
+    indexs = JSON.parse(indexs);
+
+    let index_list = indexs.indexOf(id);
+    let string_to_remove = indexs[index_list];
+
+    let notifications = localStorage.getItem("all_notifications_JSON");
+    notifications = JSON.parse(notifications);
+    let tabid = notifications.Notifications[string_to_remove].tabid;
+
+
+    delete notifications.Notifications[string_to_remove];
+    indexs.splice(index_list, 1);
+
+    indexs = JSON.stringify(indexs);
+    localStorage.setItem("indexed_alerts", indexs);
+
+    notifications = JSON.stringify(notifications);
+    localStorage.setItem("all_notifications_JSON", notifications);
+
+    chrome.runtime.sendMessage({from: "bg", subject: "refreshPage"}, function (response) {});
+    setTimeout(function () {
+        chrome.tabs.sendMessage(tabid, {from: "popup", subject: "removeTag", remove_id: id});
+    }, function (response) {
+    }, 2000);
+}
+
 function send_Alert(id, odds, notifications) {
 
     let notification = localStorage.getItem("all_notifications_JSON");
@@ -14,7 +43,7 @@ function send_Alert(id, odds, notifications) {
         isBack = "Lay";
     }
     let isBetfair;
-    if (notifications.Notifications[id].exchange = "Betfair") {
+    if (notifications.Notifications[id].exchange === "Betfair") {
         isBetfair = "betfair.png";
     } else {
         isBetfair = "smarkets.png";
@@ -56,7 +85,7 @@ function send_Alert(id, odds, notifications) {
         });
         current_notifications.splice(current_notifications.indexOf(id), 1);
         notification.close();
-    }
+    };
 
 }
 
@@ -123,7 +152,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     }
     if ((msg.from === "content") && (msg.subject === "set_notif_data")) {
         localStorage.setItem("all_notifications_JSON", msg.notification);
-
     }
 
     if ((msg.from === "content") && (msg.subject === "get_tab_data")) {
@@ -142,8 +170,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             }, 1000);
 
         });
-
-
     }
 
     if (msg.from === "content" && msg.subject === "create_menu") {
@@ -163,34 +189,3 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     }
 
 });
-
-
-function removeListItem(id) {
-
-    let indexs = localStorage.getItem("indexed_alerts");
-    indexs = JSON.parse(indexs);
-
-    let index_list = indexs.indexOf(id);
-    let string_to_remove = indexs[index_list];
-
-    let notifications = localStorage.getItem("all_notifications_JSON");
-    notifications = JSON.parse(notifications);
-    let tabid = notifications.Notifications[string_to_remove].tabid;
-
-
-    delete notifications.Notifications[string_to_remove];
-    indexs.splice(index_list, 1);
-
-    indexs = JSON.stringify(indexs);
-    localStorage.setItem("indexed_alerts", indexs);
-
-    notifications = JSON.stringify(notifications);
-    localStorage.setItem("all_notifications_JSON", notifications);
-
-    chrome.runtime.sendMessage({from: "bg", subject: "refreshPage"}, function (response) {
-    });
-    setTimeout(function () {
-        chrome.tabs.sendMessage(tabid, {from: "popup", subject: "removeTag", remove_id: id})
-    }, function (response) {
-    }, 2000);
-}

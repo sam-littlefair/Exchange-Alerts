@@ -60,7 +60,7 @@ function setUpNotify() {
         let options = [];
         let name;
         let index = notificationData["Temp_data"]["index"];
-        chrome.tabs.sendMessage(tabid, {from: 'popup', subject: 'DOMInfo'}, function (response) {
+        chrome.tabs.sendMessage(tabid, {from: "popup", subject: "DOMInfo"}, function (response) {
             for (let i = 0; i < Object.keys(response.Runners).length; i++) {
                 options[i] = response.Runners[i];
             }
@@ -76,7 +76,7 @@ function setUpNotify() {
 
             chrome.tabs.sendMessage(
                 notificationData["Temp_data"]["tabid"], {
-                    from: 'popup', subject: 'setUpListener',
+                    from: "popup", subject: "setUpListener",
                     index: notificationData["Temp_data"].index,
                     backLay: notificationData["Temp_data"].back, id: random_string
                 },
@@ -113,7 +113,7 @@ function setUpNotify() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     let notificationData = localStorage.getItem("all_notifications_JSON");
     notificationData = JSON.parse(notificationData);
     if (notificationData.Temp_data.back === "back") {

@@ -238,11 +238,163 @@ function printCurrentNotif() {
     }
 }
 
+function toggleSound() {
+    let JSON = getJSON();
+    JSON.Settings.Sound = document.getElementById("sound_check").checked;
+    setJSON(JSON);
+}
+
+function toggleRemoveButton() {
+    let selection = document.getElementById("existingNotifications");
+    let nameChosen = selection.options[selection.selectedIndex].text;
+    if (nameChosen.includes("Your existing notifications...")) {
+        document.getElementById("removeAlert").style.display = "none";
+    } else {
+        document.getElementById("removeAlert").style.display = "block";
+    }
+}
+
+function toggleAlertRemove() {
+    let JSON = getJSON();
+    JSON.Settings.Persistent_Alerts = document.getElementById("alert_remove_check").checked;
+    setJSON(JSON);
+}
+
+function openSettings() {
+    let menuBox = document.getElementById("settings_menu");
+    if (menuBox.style.display === "block") {
+        menuBox.style.display = "none";
+    }
+    else {
+        menuBox.style.display = "block";
+    }
+}
+
+let nameArrayCheck, nameList;
+
+function setDOMInfo(response) {
+
+    let JSON = getJSON();
+    nameList = response;
+
+    if (response == null) {
+        document.body.style.height = "200px";
+        renderStatus("Open an exchange event page to begin!");
+        document.getElementById("all").setAttribute("style", "display:none");
+    } else {
+        if (isBetfair === false) {
+            isBetfair = true;
+        }
+        renderStatus("What would you like to be notified for?");
+        document.getElementById("form").setAttribute("style", "display:block");
+        document.getElementById("all").setAttribute("style", "display:block");
+    }
+    nameArrayCheck = nameList;
+    let select = document.getElementById("smarkValues");
+
+    for (let i = 0; i < Object.keys(response.Runners).length; i++) {
+        let opt = nameList.Runners[i];
+        let name_checker = opt.split(": ");
+        if (name_checker.length > 2) {
+            opt = name_checker[1] + ": " + name_checker[2];
+        }
+        let listItem = document.createElement("option");
+        listItem.textContent = opt;
+        listItem.value = opt;
+        select.appendChild(listItem);
+    }
+    renderBackLay("Back or lay odds?");
+    renderOverUnder("Notify me when the odds are...");
+
+    if (Object.keys(JSON.Notifications).length === 0) {
+        document.body.style.height = "350px";
+        document.getElementById("currentNotif").setAttribute("style", "display:none");
+    } else {
+        document.getElementById("currentNotif").setAttribute("style", "display:block");
+    }
+}
+
+function checkJSON() {
+    let notifs = getJSON();
+    let index = getINDEX();
+
+    if (notifs.Settings.Persistent_Alerts) {
+        let isOpen = false;
+        let hasChanged = false;
+        chrome.tabs.query({}, function (tabs) {
+            for (let key in notifs.Notifications) {
+                if (notifs.Notifications.hasOwnProperty(key)) {
+
+                    for (let j = 0; j < tabs.length; j++) {
+                        if (tabs[j].url === notifs.Notifications[key].url) {
+                            isOpen = true;
+
+                        }
+                    }
+                    if (!isOpen) {
+                        isOpen = false;
+                        hasChanged = true;
+                        delete notifs.Notifications[key];
+                        setJSON(notifs);
+                        index.splice(index.indexOf(key), 1);
+                        setINDEX(index);
+
+                    }
+
+
+                }
+            }
+
+            if (hasChanged) {
+                hasChanged = false;
+                location.reload();
+            }
+        });
+    }
+    if (Object.keys(notifs.Notifications).length !== index.length) {
+        if (Object.keys(notifs.Notifications).length > index.length) {
+
+            for (let key in notifs.Notifications) {
+                if (notifs.Notifications.hasOwnProperty(key)) {
+                    if (index.length === 0) {
+                        delete notifs.Notifications[key];
+                    } else {
+                        inner_loop:
+                            for (let i = 0; i < index.length; i++) {
+                                if (key === index[i]) {
+                                    break inner_loop;
+                                } else if (i === index.length - 1) {
+                                    delete notifs.Notifications[key];
+                                }
+                            }
+                    }
+                }
+            }
+        } else if (Object.keys(notifs.Notifications).length < index.length) {
+            for (let i = 0; i < index.length; i++) {
+                inner_loop2:
+                    for (let key in notifs.Notifications) {
+                        if (notifs.Notifications.hasOwnProperty(key)) {
+                            if (key === index[i]) {
+                                break inner_loop2;
+                            } else if (i === index.length - 1) {
+                                index.splice(i, 1);
+                            }
+                        }
+                    }
+            }
+        }
+
+        setJSON(notifs);
+        setINDEX(index);
+    }
+}
+
 let isBetfair = false;
 document.addEventListener("DOMContentLoaded", function () {
     chrome.tabs.query({"active": true, "lastFocusedWindow": true}, function (tabs) {
 
-        if (tabs[0].url !== undefined) {
+        if (typeof tabs[0].url !== "undefined") {
             urlPage = tabs[0].url;
         }
 
@@ -380,161 +532,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 });
-
-function checkJSON() {
-    let notifs = getJSON();
-    let index = getINDEX();
-
-    if (notifs.Settings.Persistent_Alerts) {
-        let isOpen = false;
-        let hasChanged = false;
-        chrome.tabs.query({}, function (tabs) {
-            for (let key in notifs.Notifications) {
-                if (notifs.Notifications.hasOwnProperty(key)) {
-
-                    for (let j = 0; j < tabs.length; j++) {
-                        console.log(tabs[j].url + notifs.Notifications[key].url);
-                        if (tabs[j].url === notifs.Notifications[key].url) {
-                            isOpen = true;
-
-                        }
-                    }
-                    if (!isOpen) {
-                        isOpen = false;
-                        hasChanged = true;
-                        delete notifs.Notifications[key];
-                        setJSON(notifs);
-                        index.splice(index.indexOf(key), 1);
-                        setINDEX(index);
-
-                    }
-
-
-                }
-            }
-
-            if (hasChanged) {
-                hasChanged = false;
-                location.reload();
-            }
-        });
-    }
-    if (Object.keys(notifs.Notifications).length !== index.length) {
-        if (Object.keys(notifs.Notifications).length > index.length) {
-
-            for (let key in notifs.Notifications) {
-                if (notifs.Notifications.hasOwnProperty(key)) {
-                    if (index.length === 0) {
-                        delete notifs.Notifications[key];
-                    } else {
-                        inner_loop:
-                            for (let i = 0; i < index.length; i++) {
-                                if (key === index[i]) {
-                                    break inner_loop;
-                                } else if (i === index.length - 1) {
-                                    delete notifs.Notifications[key];
-                                }
-                            }
-                    }
-                }
-            }
-        } else if (Object.keys(notifs.Notifications).length < index.length) {
-            for (let i = 0; i < index.length; i++) {
-                inner_loop2:
-                    for (let key in notifs.Notifications) {
-                        if (notifs.Notifications.hasOwnProperty(key)) {
-                            if (key === index[i]) {
-                                break inner_loop2;
-                            } else if (i === index.length - 1) {
-                                index.splice(i, 1);
-                            }
-                        }
-                    }
-            }
-        }
-
-        setJSON(notifs);
-        setINDEX(index);
-    }
-}
-
-function toggleSound() {
-    let JSON = getJSON();
-    JSON.Settings.Sound = document.getElementById("sound_check").checked;
-    setJSON(JSON);
-}
-
-function toggleRemoveButton() {
-    let selection = document.getElementById("existingNotifications");
-    let nameChosen = selection.options[selection.selectedIndex].text;
-    if (nameChosen.includes("Your existing notifications...")) {
-        document.getElementById("removeAlert").style.display = "none";
-    } else {
-        document.getElementById("removeAlert").style.display = "block";
-    }
-}
-
-function toggleAlertRemove() {
-    let JSON = getJSON();
-    JSON.Settings.Persistent_Alerts = document.getElementById("alert_remove_check").checked;
-    setJSON(JSON);
-}
-
-function openSettings() {
-    let menuBox = document.getElementById("settings_menu");
-    if (menuBox.style.display === "block") {
-        menuBox.style.display = "none";
-    }
-    else {
-        menuBox.style.display = "block";
-    }
-}
-
-let nameArrayCheck, nameList;
-
-function setDOMInfo(response) {
-
-    let JSON = getJSON();
-    nameList = response;
-
-    if (response == null) {
-        document.body.style.height = "200px";
-        renderStatus("Open an exchange event page to begin!");
-        document.getElementById("all").setAttribute("style", "display:none");
-    } else {
-        if (isBetfair = false) {
-            isBetfair = true;
-        }
-        renderStatus("What would you like to be notified for?");
-        document.getElementById("form").setAttribute("style", "display:block");
-        document.getElementById("all").setAttribute("style", "display:block");
-    }
-    nameArrayCheck = nameList;
-    let select = document.getElementById("smarkValues");
-
-    for (let i = 0; i < Object.keys(response.Runners).length; i++) {
-        let opt = nameList.Runners[i];
-        console.log(opt);
-        let name_checker = opt.split(": ");
-        if (name_checker.length > 2) {
-            opt = name_checker[1] + ": " + name_checker[2];
-        }
-        let listItem = document.createElement("option");
-        listItem.textContent = opt;
-        listItem.value = opt;
-        select.appendChild(listItem);
-    }
-    renderBackLay("Back or lay odds?");
-    renderOverUnder("Notify me when the odds are...");
-
-    if (Object.keys(JSON.Notifications).length === 0) {
-        document.body.style.height = "350px";
-        document.getElementById("currentNotif").setAttribute("style", "display:none");
-    } else {
-        document.getElementById("currentNotif").setAttribute("style", "display:block");
-    }
-
-}
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if ((msg.from === "bg") && (msg.subject === "grabNotifData")) {
