@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e1394a19bfd140d3b37739d58203c1db)](https://www.codacy.com/app/sam-littlefair/Exchange-Alerts?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sam-littlefair/Exchange-Alerts&amp;utm_campaign=Badge_Grade)
+
 # Exchange-Alerts
 Browser add-on that provides desktop notification functionality to sports trading exchanges. 
 
